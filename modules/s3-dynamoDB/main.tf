@@ -1,9 +1,10 @@
 resource "aws_s3_bucket" "s3_bucket" {
   bucket = var.bucket_name
+  force_destroy = true
   #region = "us-east-1"
 
   tags = {
-    Name        = "capstone_s3_bucket"
+    Name        = "capstone_s3_bucket_femi"
     Environment = "dev"
   }
 }

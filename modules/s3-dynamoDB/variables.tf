@@ -1,6 +1,6 @@
 variable "bucket_name" {
   type    = string
-  default = "capstone-s3-bucket"
+  default = "capstone-s3-bucket-femi"
 }
 variable "dynamo_table" {
   type    = string

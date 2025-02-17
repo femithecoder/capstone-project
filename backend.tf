@@ -2,7 +2,7 @@ terraform {
   required_version = ">=0.12.0" 
 
   backend "s3" {
-    bucket = "capstone_s3_bucket"
+    bucket = "capstone-s3-bucket-femi"
     key = "value"
     region = "us-east-1"
   }

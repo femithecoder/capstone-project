@@ -2,16 +2,19 @@
 
 # Update package list and install dependencies
 sudo apt update -y
-sudo apt install -y wget unzip python3-pip -y
+sudo apt install -y wget unzip python3-pip
 
 # Installing AWS CLI (if not already installed)
-if ! command -v aws &> /dev/null; then
-    echo "Installing AWS CLI..."
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    unzip awscliv2.zip
-    sudo ./aws/install
-    rm -rf awscliv2.zip aws/
+if ! which -v aws &> /dev/null; then
+   echo "Installing AWS CLI..."
+   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   unzip awscliv2.zip
+   sudo ./aws/install
+   rm -rf awscliv2.zip aws/
 fi
+
+#install jdk
+sudo apt install fontconfig openjdk-17-jre -y
 
 # SonarQube Variables
 SONARQUBE_VERSION=10.5.1.90531
@@ -26,10 +29,10 @@ SONAR_DB_PASSWORD=$(openssl rand -base64 12)
 APP_DB_PASSWORD=$(openssl rand -base64 12)
 
 # Store passwords in AWS Secrets Manager
-aws secretsmanager create-secret --name sonar-db-password --secret-string "$SONAR_DB_PASSWORD" --region us-east-1 || \
+aws secretsmanager create-secret --name sonar-db-password --secret-string "$SONAR_DB_PASSWORD" --region us-east-1  \
 aws secretsmanager update-secret --secret-id sonar-db-password --secret-string "$SONAR_DB_PASSWORD" --region us-east-1
 
-aws secretsmanager create-secret --name app-db-password --secret-string "$APP_DB_PASSWORD" --region us-east-1 || \
+aws secretsmanager create-secret --name app-db-password --secret-string "$APP_DB_PASSWORD" --region us-east-1  \
 aws secretsmanager update-secret --secret-id app-db-password --secret-string "$APP_DB_PASSWORD" --region us-east-1
 
 # Store database credentials in system environment variables
@@ -39,7 +42,7 @@ echo "APP_DB_PASSWORD=$APP_DB_PASSWORD" | sudo tee -a /etc/environment
 
 # ✅ Step 1: Install PostgreSQL First
 echo "Installing PostgreSQL..."
-sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ lsb_release -cs-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 
 sudo apt update -y
@@ -71,11 +74,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-unzip -o sonarqube-${SONARQUBE_VERSION}.zip -d /opt
+sudo unzip -o sonarqube-${SONARQUBE_VERSION}.zip -d /opt
 sudo mv /opt/sonarqube-${SONARQUBE_VERSION} /opt/sonarqube
 
 # Ensure binaries have executable permissions
-sudo chmod +x /opt/sonarqube/bin/linux-x86-64/sonar.sh
+sudo -u chmod +x /opt/sonarqube/bin/linux-x86-64/sonar.sh 
 
 # Create SonarQube group and user if not exists
 if ! getent group ddsonar > /dev/null; then
@@ -83,7 +86,7 @@ if ! getent group ddsonar > /dev/null; then
 fi
 
 if ! id -u ddsonar > /dev/null 2>&1; then
-    sudo useradd -g ddsonar -d /opt/sonarqube -s /bin/bash ddsonar
+    sudo useradd -g ddsonar ddsonar
 fi
 
 sudo chown -R ddsonar:ddsonar /opt/sonarqube
@@ -98,7 +101,7 @@ EOF"
 
 # ✅ Step 5: Set Up SonarQube as a Service
 echo "Creating SonarQube systemd service..."
-echo -e "[Unit]
+echo  "[Unit]
 Description=SonarQube service
 After=syslog.target network.target
 

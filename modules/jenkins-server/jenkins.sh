@@ -2,7 +2,7 @@
 
 sudo apt update -y
 
-sudo apt install fontconfig openjdk-17-jre
+sudo apt install fontconfig openjdk-17-jre -y
 
 sudo apt install wget -y
 

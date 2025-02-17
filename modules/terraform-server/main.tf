@@ -3,15 +3,19 @@ resource "aws_instance" "terraform-server" {
   instance_type = var.instance_type 
   key_name = var.key_name
   user_data = file("${path.module}/terraform.sh")
-  subnet_id = module.vpc.public_subnets[1]
-
+  subnet_id = var.subnet_id
+  associate_public_ip_address = true
   vpc_security_group_ids = [aws_security_group.terraform_sg.id]
+
+  tags = {
+    Name = "terraform-server"
+  }
 }
 
 resource "aws_security_group" "terraform_sg" {
   name = "terraform_sg"
   description = "allow TLS inbound traffic and all outbound traffic"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port = 22

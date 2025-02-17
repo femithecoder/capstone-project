@@ -10,3 +10,5 @@ variable "key_name" {
   description = "name of the key-pair"
 }
 variable "main-region" {}
+variable "subnet_id" {}
+variable "vpc_id" {}

@@ -12,3 +12,5 @@ variable "volume_type" {
     default = "gp3"
 }
 variable "main-region" {}
+variable "subnet_id" {}
+variable "vpc_id" {}

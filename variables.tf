@@ -14,3 +14,5 @@ variable "volume_type" {
     type = string
     default = "gp3"
 }
+# variable "subnet_id" {}
+# variable "vpc_id" {}

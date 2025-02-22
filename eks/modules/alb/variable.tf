@@ -13,3 +13,7 @@ variable "cluster_name" {
 variable "vpc_id" {
   type = string
 }
+
+variable "oidc_provider_arn" {
+  type = string
+}

@@ -67,3 +67,22 @@ module "eks" {
     }
   }
 }
+
+resource "kubernetes_namespace" "capstone_frontend" {
+  metadata {
+    annotations = {
+      name = "capstone_frontend"
+    }
+    
+    labels = {
+      app = "webapp"
+    }
+    name = "capstone_frontend"
+  }
+}
+
+resource "kubernetes_namespace" "backend" {
+  metadata {
+    
+  }
+}

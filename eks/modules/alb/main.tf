@@ -23,8 +23,46 @@ resource "kubernetes_service_account" "service-account" {
     }
 
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.iam_eks_role
+      "eks.amazonaws.com/role-arn" = module.iam_eks_role.iam_role_arn
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
+  }
+}
+
+
+resource "helm_release" "lb" {
+  name = "load-balncer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart = "load-balancer-controller"
+  namespace = "kube-system"
+  depends_on = [ kubernetes_service_account.service-account ]
+
+  set {
+    name = "region"
+    value = var.main-region
+  }
+
+  set {
+    name = "vpcId"
+    value = var.vpc_id
+  }
+
+  set {
+    name = "serviceAccount.create"
+    value = "false"
+  }
+  set {
+    name = "serviceAccount.name"
+    value = "load-balancer-controller"
+  }
+
+  set {
+    name = "clusterName"
+    value = var.cluster_name
+  }
+
+  set {
+    name = "image.repository"
+    value = "needs to be created"
   }
 }

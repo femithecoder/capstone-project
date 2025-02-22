@@ -6,6 +6,6 @@ variable "private_subnets" {
   type = string
 }
 
-variable "" {
-  
+variable "public_subnets" {
+  type = string
 }

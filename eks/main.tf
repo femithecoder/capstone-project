@@ -4,5 +4,8 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "value"
+  source = "./modules/cluster"
+  private_subnets = module.vpc.private_subnets
+  public_subnets = module.vpc.public_subnets
+  vpc_id = path.module.vpc_id
 }

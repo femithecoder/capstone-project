@@ -81,8 +81,28 @@ resource "kubernetes_namespace" "capstone_frontend" {
   }
 }
 
-resource "kubernetes_namespace" "backend" {
+resource "kubernetes_namespace" "capstone_backend" {
   metadata {
-    
+    annotations = {
+      name = "capstone_backend"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+    name = "capstone_backend"
+  }
+}
+
+resource "kubernetes_namespace" "capstone_monitoring" {
+  metadata {
+    annotations = {
+      name = "capstone_monitoring"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+    name = "capstone_monitoring"
   }
 }

@@ -15,3 +15,5 @@ output "oidc_provider_arn" {
 output "oidc_provider" {
   value = module.eks.oidc_providers
 }
+
+

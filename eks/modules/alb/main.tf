@@ -1,4 +1,4 @@
-module "iam_eks_role" {
+module "lb_role" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name = "${var.env_name}_eks_lb"
@@ -7,7 +7,7 @@ module "iam_eks_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:load-balancer-controller"]
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
 }
@@ -15,15 +15,15 @@ module "iam_eks_role" {
 
 resource "kubernetes_service_account" "service-account" {
   metadata {
-    name = "load-balancer-controller"
+    name = "aws-load-balancer-controller"
     namespace = "kube-system"
     labels = {
-      "app.kubernetes.io/name"      = "load-balancer-controller"
+      "app.kubernetes.io/name"      = "aws-load-balancer-controller"
       "app.kubernetes.io/component" = "controller"
     }
 
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.iam_eks_role.iam_role_arn
+      "eks.amazonaws.com/role-arn" = module.lb_role.iam_role_arn
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
@@ -31,9 +31,9 @@ resource "kubernetes_service_account" "service-account" {
 
 
 resource "helm_release" "lb" {
-  name = "load-balncer-controller"
+  name = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
-  chart = "load-balancer-controller"
+  chart = "aws-load-balancer-controller"
   namespace = "kube-system"
   depends_on = [ kubernetes_service_account.service-account ]
 
@@ -63,6 +63,6 @@ resource "helm_release" "lb" {
 
   set {
     name = "image.repository"
-    value = "needs to be created"
+    value = "602401143452.dkr.ecr.${var.main-region}.amazonaws.com/amazon/aws-load-balancer-controller"
   }
 }

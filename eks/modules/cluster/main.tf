@@ -1,95 +1,71 @@
-resource "aws_iam_role" "eks_admin_role" {
-  name = "eks-admin-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::548570664128:user/femithecoder"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-resource "aws_iam_role_policy_attachment" "eks_admin_attach" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterAdminPolicy"
-  role       = aws_iam_role.eks_admin_role.name
-}
-
 module "eks" {
-  source = "terraform-aws-modules/eks/aws"
-  version = "~> 20.31"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 19.0"
 
-  cluster_name = "capstone-project"
-  cluster_version = "1.31"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.28"
 
   cluster_endpoint_public_access = true
 
-  enable_cluster_creator_admin_permissions = true
-
-  vpc_id = var.vpc_id
-  subnet_ids = var.private_subnets
-  control_plane_subnet_ids = var.private_subnets
-
-
-  access_entries = {
-    capstone_access = {
-        principal_arn = aws_iam_role.eks_admin_role.arn
-
-        policy_associations = {
-            capstone_asso = {
-                policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterAdminPolicy"
-                access_scope = {
-                    namespaces = ["default"]
-                    type = "namespace"
-                }
-            }
-        }
-    }
-  }
-
+  create_kms_key              = false
+  create_cloudwatch_log_group = false
+  cluster_encryption_config   = {}
 
   cluster_addons = {
     coredns = {
-        most_recent = true
-    }
-    vpc-cni = {
-        most_recent = true
+      most_recent = true
     }
     kube-proxy = {
-        most_recent = true
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
     }
     aws-ebs-csi-driver = {
-        most_recent = true
+      most_recent = true
     }
   }
 
-  cluster_compute_config = {
-    enabled  = true
-    # node_pools = ["capstone-pools"]
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.private_subnets
+  control_plane_subnet_ids = var.private_subnets
 
-  eks_managed_node_groups_defaults = {
-        instance_types = ["t2.medium"]
-        iam_role_additional_policies = {
-            amazonEBSCSIDriverPolicy = "arn:aws:iam::policy/service-role/AmazonEBSCSIDriverPolicy"
-        }
-  }
-    eks_managed_node_groups = {
-        capstone = {
-            min_size = 1
-            max_size = 2
-            desired_size = 1
-            instance_types = ["t3.medium"]
-            capacity_type = "SPOT"
-        }
+  # EKS Managed Node Group(s)
+  eks_managed_node_group_defaults = {
+    instance_types = ["t2.medium"]
+    iam_role_additional_policies = {
+      AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
     }
   }
-  depends_on = [aws_iam_role.eks_admin_role]
+
+  eks_managed_node_groups = {
+    node-group-01 = {
+      min_size     = 1
+      max_size     = 10
+      desired_size = 2
+  
+      instance_types = ["t2.medium"]
+      capacity_type  = "SPOT"
+    }
+  }
+
+  # aws-auth configmap
+  manage_aws_auth_configmap = true
+  #create_aws_auth_configmap = true
+
+  aws_auth_roles = [
+    {
+      rolearn  = "arn:aws:iam::548570664128:role/ec2-connect"
+      username = "femithecoder"
+      groups   = ["system:masters"]
+    },
+  ]
+
+  tags = {
+    env       = "dev"
+    terraform = "true"
+  }
 }
-
 resource "kubernetes_namespace" "capstone_frontend" {
   metadata {
     annotations = {
@@ -101,7 +77,6 @@ resource "kubernetes_namespace" "capstone_frontend" {
     }
     name = "capstone_frontend"
   }
-  depends_on = [ module.eks ]
 }
 
 resource "kubernetes_namespace" "capstone_backend" {
@@ -115,7 +90,6 @@ resource "kubernetes_namespace" "capstone_backend" {
     }
     name = "capstone_backend"
   }
-  depends_on = [ module.eks ]
 }
 
 resource "kubernetes_namespace" "capstone_monitoring" {
@@ -129,5 +103,4 @@ resource "kubernetes_namespace" "capstone_monitoring" {
     }
     name = "capstone_monitoring"
   }
-  depends_on = [ module.eks ]
 }

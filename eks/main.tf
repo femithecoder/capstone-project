@@ -5,11 +5,11 @@ module "vpc" {
 
 module "eks" {
   source = "./modules/cluster"
-  private_subnets = module.vpc.private_subnets[1]
+  cluster_name = var.cluster_name
+  private_subnets = module.vpc.private_subnets
   # public_subnets = module.vpc.public_subnets[0]
   vpc_id = module.vpc.vpc_id
-  depends_on = [ module.vpc ]
-
+  
 }
 module "aws_alb_controller" {
   source = "./modules/alb"

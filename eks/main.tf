@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../tools/modules/vpc"
   main-region = var.main_region
 }
 
@@ -17,4 +17,9 @@ module "alb" {
   vpc_id = module.vpc.vpc_id
   oidc_provider_arn = module.eks.oidc_provider_arn
   
+}
+
+module "grafana_prometheus" {
+  source = "./modules/grafana_prometheus"
+  depends_on = [ module.eks ]
 }

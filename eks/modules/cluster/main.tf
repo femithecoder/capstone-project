@@ -44,3 +44,47 @@ cluster_enabled_log_types       = ["api", "audit", "authenticator", "controllerM
     Terraform   = "true"
   }
 }
+resource "kubernetes_namespace" "frontend" {
+  metadata {
+    annotations = {
+      name = "frontend"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+
+    name = "frontend"
+  }
+}
+
+
+resource "kubernetes_namespace" "backend" {
+  metadata {
+    annotations = {
+      name = "backend"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+
+    name = "backend"
+  }
+}
+
+
+
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    annotations = {
+      name = "monitoring"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+
+    name = "monitoring"
+  }
+}

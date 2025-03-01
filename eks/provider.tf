@@ -1,6 +1,7 @@
 # AWS Provider
 provider "aws" {
   region = var.main_region
+
 }
 
 # Data sources to fetch EKS cluster details

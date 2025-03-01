@@ -61,3 +61,6 @@ output "cluster_tls_certificate_sha1_fingerprint" {
   description = "The SHA1 fingerprint of the public key of the cluster's certificate"
   value       = module.eks.cluster_tls_certificate_sha1_fingerprint
 }
+# output "kubernetes_namespace" {
+#   value = kubernetes_namespace.monitoring.metadata[0].name
+# }

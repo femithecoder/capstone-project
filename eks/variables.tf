@@ -9,3 +9,7 @@ variable "main_region" {
 # variable "oidc_provider_arn" {
 #   type = string
 # }
+variable "grafana_admin_password" {
+  type = string
+  sensitive = true
+}

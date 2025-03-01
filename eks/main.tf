@@ -16,10 +16,6 @@ module "alb" {
   source = "./modules/alb"
   vpc_id = module.vpc.vpc_id
   oidc_provider_arn = module.eks.oidc_provider_arn
-  
+  grafana_admin_password = var.grafana_admin_password
 }
 
-module "grafana_prometheus" {
-  source = "./modules/grafana_prometheus"
-  depends_on = [ module.eks ]
-}

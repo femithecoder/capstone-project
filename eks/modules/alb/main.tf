@@ -68,3 +68,67 @@ resource "helm_release" "lb" {
     value = var.cluster_name
   }
 }
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    annotations = {
+      name = "monitoring"
+    }
+
+    labels = {
+      app = "webapp"
+    }
+
+    name = "monitoring"
+  }
+}
+resource "helm_release" "prometheus" {
+  name = "prometheus-agent"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart = "prometheus"
+  namespace = "monitoring"
+  depends_on = [ kubernetes_namespace.monitoring ]
+
+  values = [
+    <<EOF
+alertmanager:
+  enabled: true
+
+grafana:
+  enabled: false  
+
+prometheus:
+  service:
+    type: ClusterIP 
+EOF
+  ]
+}
+resource "kubernetes_secret" "grafana_admin_password" {
+  metadata {
+    name      = "grafana-admin-secret"
+    namespace = "monitoring"
+  }
+
+  data = {
+    admin-password = var.grafana_admin_password
+  }
+}
+
+resource "helm_release" "grafana" {
+  name       = "grafana"
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "grafana"
+  namespace  = "monitoring"
+  depends_on = [ kubernetes_secret.grafana_admin_password ]
+
+  values = [
+    <<EOF
+admin: 
+ existingSecret: "grafana-admin-secret"
+ adminPasswordKey: "admin-password
+service:
+  type: ClusterIP  
+EOF
+  ]
+}
+
+

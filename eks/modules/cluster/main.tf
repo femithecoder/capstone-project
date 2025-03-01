@@ -72,19 +72,3 @@ resource "kubernetes_namespace" "backend" {
     name = "backend"
   }
 }
-
-
-
-resource "kubernetes_namespace" "monitoring" {
-  metadata {
-    annotations = {
-      name = "monitoring"
-    }
-
-    labels = {
-      app = "webapp"
-    }
-
-    name = "monitoring"
-  }
-}

@@ -2,6 +2,13 @@
 provider "aws" {
   region = var.main_region
 
+  
+#     assume_role {
+#     role_arn     = "arn:aws:iam::548570664128:role/ec2-connect"
+#     session_name = "TerraformSession"
+#   }
+  
+
 }
 
 # Data sources to fetch EKS cluster details
@@ -37,5 +44,20 @@ provider "helm" {
       command     = "aws"
     }
   }
+}
+provider "helm" {
+
+  alias = "dev_eks"
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    token                  = data.aws_eks_cluster_auth.cluster-auth.token
+    # load_config_file       = false
+  }
+}
+
+data "aws_eks_cluster_auth" "cluster-auth" {
+  depends_on = [module.eks]
+  name       = module.eks.cluster_name
 }
 

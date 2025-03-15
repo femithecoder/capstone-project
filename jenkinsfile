@@ -1,9 +1,3 @@
-stage('Checkout Terraform Code') {
-    steps {
-        git branch: 'dev', url: 'https://github.com/grandtech001/capstone-project.git'
-    }
-}
-
 pipeline {
     agent { node { label 'terraform-node' } } 
     parameters {
@@ -13,7 +7,13 @@ pipeline {
         EMAIL_TO = 'bolarinwaibrahimo@gmail.com'
     }
     stages {
-        stage('1.Terraform init') {
+        stage('1. Checkout Terraform Code') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/grandtech001/capstone-project.git'
+            }
+        }
+
+        stage('2.Terraform init') {
             steps {
                 dir('eks'){
                     echo 'terraform init phase'
@@ -21,7 +21,7 @@ pipeline {
                 }
             }
         }
-        stage('2.Terraform plan') {
+        stage('3.Terraform plan') {
             steps {
                  dir('eks'){
                     echo 'terraform plan phase'
@@ -29,7 +29,7 @@ pipeline {
                 }
             }
         }
-        stage('3.Manual Approval') {
+        stage('4.Manual Approval') {
             input {
                 message "Should we proceed?"
                 ok "Yes, we should."
@@ -42,27 +42,29 @@ pipeline {
                     if (params.Manual_Approval == 'Reject') {
                         echo "Deployment was rejected. Exiting pipeline."
                         error "Pipeline aborted by user."
-              }     else {
-                echo "Deployment approved, proceeding..."
+                    }
+                    else {
+                        echo "Deployment approved, proceeding"
+                    }
+                }
             }
         }
-    }
-        }
-        stage('4.Terraform Deploy') {              
+        stage('5.Terraform Deploy') {              
             steps {
                 dir('eks'){
-                    try{
-                        echo 'Terraform ${params.Deployment_Type} phase'  
-                        sh "AWS_REGION=us-west-2 terraform ${params.Deployment_Type} --auto-approve"               
-                        }
-                        catch (Exception e) {
+                    script{
+                        try{
+                            echo 'Terraform ${params.Deployment_Type} phase'
+                            sh "AWS_REGION=us-west-2 terraform ${params.Deployment_Type} --auto-approve"
+                            } catch (Exception e) {
                             echo 'Terraform deployment failed: ${e}'
                             error 'Stopping pipeline due to failure'
                         }
                     } 
                 }
             } 
-        stage ('5. Email Notification') {
+        }
+        stage ('6. Email Notification') {
             steps {
                 script {
                 try {

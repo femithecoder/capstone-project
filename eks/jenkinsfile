@@ -1,11 +1,14 @@
 pipeline {
     agent { node { label 'terraform-node' } } 
+
     parameters {
-                choice(name: 'Deployment_Type', choices:['apply','destroy'],description:'The deployment type')
-                  }
-    environment {
-        EMAIL_TO = 'bolarinwaibrahimo@gmail.com'
+        choice(name: 'Deployment_Type', choices:['apply','destroy'], description: 'The deployment type')
     }
+
+    environment {
+        EMAIL_TO = 'femithecoder@gmail.com'
+    }
+
     stages {
         stage('1.Terraform init') {
             steps {
@@ -13,48 +16,50 @@ pipeline {
                 sh 'terraform init'
             }
         }
+        
         stage('2.Terraform plan') {
             steps {
                 echo 'terraform plan phase'
                 sh 'AWS_REGION=us-east-1 terraform plan'
             }
         }
+        
         stage('3.Manual Approval') {
             input {
                 message "Should we proceed?"
                 ok "Yes, we should."
-                parameters{
-                    choice (name: 'Manual_Approval', choices: ['Approve','Reject'], description: 'Approve or Reject the deployment')
+                parameters {
+                    choice(name: 'Manual_Approval', choices: ['Approve','Reject'], description: 'Approve or Reject the deployment')
                 }
             }
-             steps {
-                echo "Deployment ${Manual_Approval}"
+            steps {
+                echo "Deployment ${params.Manual_Approval}"
             }          
         }
+        
         stage('4.Terraform Deploy') {              
             steps { 
-                echo 'Terraform ${params.Deployment_Type} phase'  
+                echo "Terraform ${params.Deployment_Type} phase"  
                 sh "AWS_REGION=us-east-1 terraform ${params.Deployment_Type} --auto-approve"
-                sh("""kubeconfig.sh""")
-                sh("""helm.sh""")
-
-                }
-                }
-        stage ('6. Email Notification') {
+                sh "chmod +x kubeconfig.sh helm.sh"
+                sh "bash kubeconfig.sh"
+                sh "bash helm.sh"
+            }
+        }
+        
+        stage('5. Email Notification') {
             steps {
                 script {
-                try {
-                       mail bcc: 'bolarinwaibrahimo@gmail.com', 
-                       body: '''Terraform deployment is completed.
-                        Let me know if the changes look okay.
-                        Thanks,
-                        Jide Domain System Technologies,
-              +44 7887768539''', cc: 'bolarinwaibrahimo@gmail.com', from: '', replyTo: '', subject: 'Terraform Infra deployment completed!!!', to: 'sarahajibola40@gmail.com'
-                          
-               }  
-               catch (Exception e) {
-                        echo "Failed to send email notification: ${e}"
-               }  
+                    try {
+                        mail from: 'lawalolorunfemi@gmail.com',
+                             to: "${EMAIL_TO}",
+                             subject: 'Terraform Infra deployment completed!',
+                             body: 'Terraform deployment is completed. Let me know if the changes look okay.'
+                    } catch (Exception e) {
+                        echo "Failed to send email: ${e}"
+                    }  
+                }
             }
-          }
-        } 
+        }
+    }
+}

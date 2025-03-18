@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        EMAIL_TO = 'femithecoder@gmail.com'
+        EMAIL_TO = 'lawalolorunfemi@gmail.com'
     }
 
     stages {
@@ -52,7 +52,7 @@ pipeline {
                 script {
                     try {
                         emailext(
-                            from: 'lawalolorunfemi@gmail.com',
+                            from: 'femithecoder@gmail.com',
                             to: "${EMAIL_TO}",
                             subject: 'Terraform Infra Deployment Completed!',
                             body: """<p>Terraform deployment is completed.</p>

@@ -1,7 +1,7 @@
-module "vpc" {
-  source = "./modules/vpc"
-  main-region = var.main_region
-}
+# module "vpc" {
+#   source = "./modules/vpc"
+#   main-region = var.main_region
+# }
 
 module "eks" {
   source = "./modules/cluster"

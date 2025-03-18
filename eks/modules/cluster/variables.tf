@@ -9,7 +9,7 @@ variable "private_subnets" {
   description = "VPC Private Subnets which EKS cluster is deployed in"
   type        = list(any)
 }
-variable "grafana_admin_password" {
-  type = string
-  sensitive = true
-}
+# variable "grafana_admin_password" {
+#   type = string
+#   sensitive = true
+# }

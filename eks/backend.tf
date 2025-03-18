@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket = "capstone-s3-bucket-femi"
-    key = "capstone/terraform.state"
+    key = "capstone/terraform.state_1"
     region = "us-east-1"
     dynamodb_table = "table"
     encrypt = false

@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "../tools/modules/vpc"
+  source = "./modules/vpc"
   main-region = var.main_region
 }
 

@@ -5,7 +5,7 @@ terraform {
     bucket = "capstone-s3-bucket-femi"
     key = "capstone/terraform.state"
     region = "us-east-1"
-    dynamodb_table = "terraform-state-locking"
+    dynamodb_table = "table"
     encrypt = false
   }
 }

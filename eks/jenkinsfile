@@ -51,15 +51,18 @@ pipeline {
             steps {
                 script {
                     try {
-                        mail from: 'lawalolorunfemi@gmail.com',
-                             to: "${EMAIL_TO}",
-                             subject: 'Terraform Infra deployment completed!',
-                             body: 'Terraform deployment is completed. Let me know if the changes look okay.'
-                    } catch (Exception e) {
-                        echo "Failed to send email: ${e}"
-                    }  
-                }
-            }
+                        emailext(
+                            from: 'lawalolorunfemi@gmail.com',
+                            to: "${EMAIL_TO}",
+                            subject: 'Terraform Infra Deployment Completed!',
+                            body: """<p>Terraform deployment is completed.</p>
+                             <p>Let me know if the changes look okay.</p>
+                             <p>Check build logs: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+                            mimeType: 'text/html'
+                )
+            }     catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+            }  
         }
     }
 }

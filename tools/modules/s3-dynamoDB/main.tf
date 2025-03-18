@@ -30,7 +30,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle_rule" {
   rule {
     id = "rule-1"
 
-    filter {}
+    filter {
+      prefix = ""
+    }
 
     status = "Enabled"
 

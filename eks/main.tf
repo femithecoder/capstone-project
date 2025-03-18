@@ -8,7 +8,6 @@ module "eks" {
   private_subnets = module.vpc.private_subnets
   vpc_id = module.vpc.vpc_id
 #   grafana_admin_password = var.grafana_admin_password
-
   depends_on = [ module.vpc ]
   
 }

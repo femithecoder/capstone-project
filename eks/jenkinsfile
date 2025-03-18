@@ -14,67 +14,67 @@ pipeline {
             steps {
                 dir('eks'){
                 echo 'terraform init phase'
-                sh 'terraform init -reconfigure'
+                sh 'terraform destroy -auto-approve'
             }
         }
         }
-        stage('2.Terraform plan') {
+//         stage('2.Terraform plan') {
         
-            steps {
-                dir('eks'){
-                echo 'terraform plan phase'
-                sh 'AWS_REGION=us-east-1 terraform plan'
-            }
-        }
-        }
+//             steps {
+//                 dir('eks'){
+//                 echo 'terraform plan phase'
+//                 sh 'AWS_REGION=us-east-1 terraform plan'
+//             }
+//         }
+//         }
         
-        stage('3.Manual Approval') {
-            input {
-                message "Should we proceed?"
-                ok "Yes, we should."
-                parameters {
-                    choice(name: 'Manual_Approval', choices: ['Approve','Reject'], description: 'Approve or Reject the deployment')
-                }
-            }
-            steps {
-                echo "Deployment ${params.Manual_Approval}"
-            }          
-        }
+//         stage('3.Manual Approval') {
+//             input {
+//                 message "Should we proceed?"
+//                 ok "Yes, we should."
+//                 parameters {
+//                     choice(name: 'Manual_Approval', choices: ['Approve','Reject'], description: 'Approve or Reject the deployment')
+//                 }
+//             }
+//             steps {
+//                 echo "Deployment ${params.Manual_Approval}"
+//             }          
+//         }
         
-        stage('4.Terraform Deploy') {              
-            steps { 
-                dir('eks'){
-                echo "Terraform ${params.Deployment_Type} phase"  
-                sh "AWS_REGION=us-east-1 terraform ${params.Deployment_Type} --auto-approve"
-                sh "chmod +x kubeconfig.sh helm.sh"
-                sh "bash kubeconfig.sh"
-                sh "bash helm.sh"
-            }
-        }
-        }
+//         stage('4.Terraform Deploy') {              
+//             steps { 
+//                 dir('eks'){
+//                 echo "Terraform ${params.Deployment_Type} phase"  
+//                 sh "AWS_REGION=us-east-1 terraform ${params.Deployment_Type} --auto-approve"
+//                 sh "chmod +x kubeconfig.sh helm.sh"
+//                 sh "bash kubeconfig.sh"
+//                 sh "bash helm.sh"
+//             }
+//         }
+//         }
         
-        stage('5. Email Notification') {
-            steps {
-                dir('eks'){
-                script {
-                    try {
-                        emailext(
-                            from: 'femithecoder@gmail.com',
-                            to: "${EMAIL_TO}",
-                            subject: 'Terraform Infra Deployment Completed!',
-                            body: """<p>Terraform deployment is completed.</p>
-                             <p>Let me know if the changes look okay.</p>
-                             <p>Check build logs: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
-                            mimeType: 'text/html'
-                )
-            }     catch (Exception e) {
-                    echo "Failed to send email: ${e.message}"
-            }  
-        }
-    }
-}
+//         stage('5. Email Notification') {
+//             steps {
+//                 dir('eks'){
+//                 script {
+//                     try {
+//                         emailext(
+//                             from: 'femithecoder@gmail.com',
+//                             to: "${EMAIL_TO}",
+//                             subject: 'Terraform Infra Deployment Completed!',
+//                             body: """<p>Terraform deployment is completed.</p>
+//                              <p>Let me know if the changes look okay.</p>
+//                              <p>Check build logs: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
+//                             mimeType: 'text/html'
+//                 )
+//             }     catch (Exception e) {
+//                     echo "Failed to send email: ${e.message}"
+//             }  
+//         }
+//     }
+// }
     
-}
+// }
 
-}
+// }
 }

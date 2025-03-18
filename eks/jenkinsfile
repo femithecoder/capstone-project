@@ -14,7 +14,7 @@ pipeline {
             steps {
                 dir('eks'){
                 echo 'terraform init phase'
-                sh 'terraform destroy -auto-approve'
+                sh 'terraform init'
             }
         }
         }

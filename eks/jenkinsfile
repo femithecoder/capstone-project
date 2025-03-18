@@ -12,16 +12,20 @@ pipeline {
     stages {
         stage('1.Terraform init') {
             steps {
+                dir('eks'){
                 echo 'terraform init phase'
                 sh 'terraform init'
             }
         }
-        
+        }
         stage('2.Terraform plan') {
+        
             steps {
+                dir('eks'){
                 echo 'terraform plan phase'
                 sh 'AWS_REGION=us-east-1 terraform plan'
             }
+        }
         }
         
         stage('3.Manual Approval') {
@@ -39,6 +43,7 @@ pipeline {
         
         stage('4.Terraform Deploy') {              
             steps { 
+                dir('eks'){
                 echo "Terraform ${params.Deployment_Type} phase"  
                 sh "AWS_REGION=us-east-1 terraform ${params.Deployment_Type} --auto-approve"
                 sh "chmod +x kubeconfig.sh helm.sh"
@@ -46,9 +51,11 @@ pipeline {
                 sh "bash helm.sh"
             }
         }
+        }
         
         stage('5. Email Notification') {
             steps {
+                dir('eks'){
                 script {
                     try {
                         emailext(

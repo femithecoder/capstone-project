@@ -23,7 +23,7 @@ module "eks" {
 
 module "alb" {
   source = "./modules/alb"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
   oidc_provider_arn = module.eks.oidc_provider_arn
   depends_on = [ module.eks ]
 #   grafana_admin_password = var.grafana_admin_password

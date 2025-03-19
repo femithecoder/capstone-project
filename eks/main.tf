@@ -14,7 +14,7 @@ data "terraform_remote_state" "vpc" {
 }
 module "eks" {
   source = "./modules/cluster"
-  private_subnets = module.vpc.private_subnets
+  private_subnets = data.terraform_remote_state.vpc.outputs.private_subnets
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
 #   grafana_admin_password = var.grafana_admin_password
 #   depends_on = [ module.vpc ]

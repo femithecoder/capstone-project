@@ -17,7 +17,7 @@ pipeline {
             steps {
                 dir('eks') {
                     echo 'terraform init phase'
-                    sh 'terraform init'
+                    sh 'terraform init -reconfigure'
                 }
             }
         }

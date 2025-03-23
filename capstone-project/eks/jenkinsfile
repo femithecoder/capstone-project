@@ -15,7 +15,7 @@ pipeline {
                 expression { params.Deployment_Type == "apply" }  // Skip for destroy
             }
             steps {
-                dir('eks') {
+                dir('capstone-project/eks') {
                     echo 'terraform init phase'
                     sh 'terraform init'
                 }
@@ -27,7 +27,7 @@ pipeline {
                 expression { params.Deployment_Type == "apply" }  // Skip for destroy
             }
             steps {
-                dir('eks') {
+                dir('capstone-project/eks') {
                     echo 'terraform plan phase'
                     sh 'AWS_REGION=us-east-1 terraform plan'
                 }
@@ -49,7 +49,7 @@ pipeline {
 
         stage('4. Terraform Deploy/Destroy') {              
             steps { 
-                dir('eks') {
+                dir('capstone-project/eks') {
                     echo "Terraform ${params.Deployment_Type} phase"
                     sh "AWS_REGION=us-east-1 terraform ${params.Deployment_Type} --auto-approve"
                     
@@ -67,7 +67,7 @@ pipeline {
 
         stage('5. Email Notification') {
             steps {
-                dir('eks') {
+                dir('capstone-project/eks') {
                     script {
                         try {
                             emailext(

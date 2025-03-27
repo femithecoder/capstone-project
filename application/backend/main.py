@@ -1,44 +1,44 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
-# Initialize FastAPI
+# Initialize FastAPI app
 app = FastAPI()
 
-# Enable CORS
+# CORS config
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["https://frontend.olorunfemilawal.com"],  # Update as needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@db:5432/mydatabase")
+# Database URL from environment
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/tvshows")
 
-# Create database connection
+# SQLAlchemy setup
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
-# Define a database model
+# Define a simple model
 class TvShow(Base):
     __tablename__ = "tv_shows"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
 
-# Create tables
+# Create the database tables
 Base.metadata.create_all(bind=engine)
 
-# Dependency to get the database session
+# Dependency to get DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -46,11 +46,12 @@ def get_db():
     finally:
         db.close()
 
+# Routes
 @app.get("/")
-async def root():
+def root():
     return {"message": "Welcome to the TV Shows API with PostgreSQL!"}
 
 @app.get("/api/shows")
-async def get_tv_shows(db: SessionLocal = next(get_db())):
+def get_tv_shows(db: Session = Depends(get_db)):
     shows = db.query(TvShow).all()
     return [{"id": show.id, "title": show.title} for show in shows]

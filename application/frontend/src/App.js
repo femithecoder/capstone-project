@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './App.module.css';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://backend.olorunfemilawal.com/api';
 
 const TvShowList = ({ onSelectShow }) => {
   const [shows, setShows] = useState([]);

@@ -97,9 +97,11 @@ stage('7. Application Deployment in EKS') {
     stage('8. Monitoring Solution Deployment in EKS') {
       steps {
         kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
-          sh "kubectl apply -k monitoring"
           sh("""script/install_helm.sh""") 
-          sh("""script/install_prometheus.sh""") 
+          sh("""script/prometheus_install.sh""")
+          sh("""script/grafana_install.sh""")
+          sh "kubectl apply -k monitoring"
+           
         }
       }
     }

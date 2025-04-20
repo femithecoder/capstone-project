@@ -89,6 +89,8 @@ stage('6. Create K8s Secret') {
 stage('7. Application Deployment in EKS') {
     steps {
         kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+          sh "kubectl create namespace frontend"
+          sh "kubectl create namespace backend"
           sh "kubectl apply -k app_k8s_manifest"
         }
       }
@@ -98,9 +100,7 @@ stage('7. Application Deployment in EKS') {
       steps {
         kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
           sh("""script/install_helm.sh""") 
-          sh("""script/prometheus_install.sh""")
-          sh("""script/grafana_install.sh""")
-          sh "kubectl apply -k monitoring"
+          sh("""script/install_monitoring.sh""")
            
         }
       }

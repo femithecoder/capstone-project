@@ -15,7 +15,7 @@ app = FastAPI()
 # CORS config
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://frontend.olorunfemilawal.com"],  # Update as needed
+    allow_origins=["https://frontend.jidebolarinwa.xyz"],  # Update as needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

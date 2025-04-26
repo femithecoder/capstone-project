@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: backend
+  name: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      name: backend
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend-container
+        image: 195275640975.dkr.ecr.us-east-1.amazonaws.com/capstone-backend:1.0.0
+        ports:
+        - containerPort: 8000
+        env:
+            - name: DB_HOST
+              value: "<your-ec2-postgres-ip>"
+            - name: DB_NAME
+              value: "myappdb"
+            - name: DB_USER
+              value: "myappuser"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-db-secret
+                  key: password
+        readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20      

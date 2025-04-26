@@ -1,0 +1,132 @@
+pipeline {
+    agent { node { label "sonarqube-docker-node" } }   
+    parameters {
+      choice(name: 'aws_account',choices: ['195275640975', '4568366404742', '922266408974','576900672829'], description: 'aws account hosting image registry')
+      choice(name: 'Environment', choices: ['Dev', 'QA', 'UAT', 'Prod'], description: 'Target environment for deployment')
+      string(name: 'ecr_tag', defaultValue: '1.0.0', description: 'Assign the ECR tag version for the build')
+    }
+
+    stages {
+    stage('1. SonarQube Analysis - Backend') {
+    steps {
+        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+            sh """
+            ${scannerHome}/bin/sonar-scanner  \
+            -Dsonar.projectKey=fastapi-backend \
+            -Dsonar.projectName='FastAPI Backend' \
+            -Dsonar.host.url=https://sonarqube.jidebolarinwa.xyz \
+            -Dsonar.token=${SONAR_TOKEN} \
+            -Dsonar.sources=. \
+            -Dsonar.language=py \
+            -Dsonar.sourceEncoding=UTF-8
+            """
+        }
+    }
+}
+    stage('2. SonarQube Analysis - Backend') {
+    steps {
+        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+            sh """
+            ${scannerHome}/bin/sonar-scanner  \
+            -Dsonar.projectKey=fastapi-backend \
+            -Dsonar.projectName='FastAPI Backend' \
+            -Dsonar.host.url=https://sonarqube.jidebolarinwa.xyz \
+            -Dsonar.token=${SONAR_TOKEN} \
+            -Dsonar.sources=. \
+            -Dsonar.language=py \
+            -Dsonar.sourceEncoding=UTF-8
+            """
+        }
+    }
+}
+    stage('3. Approval: Proceed if Quality Passes') {
+      steps {
+        input message: 'Do you approve the quality gate results and want to continue?', ok: 'Yes, proceed'
+      }
+    }
+    
+    stage('4. Docker Image Build') {
+      steps {
+          sh "aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${aws_account}.dkr.ecr.us-west-2.amazonaws.com"
+          
+          //BUILD
+          sh "sudo docker build -f application/backend/Dockerfile -t capstone-backend application/backend/"
+          sh "sudo docker build -f application/frontend/Dockerfile -t capstone-frontend application/frontend/"
+          
+          //TAG
+          sh "sudo docker tag capstone-backend:latest ${aws_account}.dkr.ecr.us-east-1.amazonaws.com/capstone-backend:${params.ecr_tag}"
+          sh "sudo docker tag capstone-frontend:latest ${aws_account}.dkr.ecr.us-east-1.amazonaws.com/capstone-frontend:${params.ecr_tag}"
+          
+          //PUSH
+          sh "sudo docker push ${aws_account}.dkr.ecr.us-east-1.amazonaws.com/capstone-backend:${params.ecr_tag}"
+          sh "sudo docker push ${aws_account}.dkr.ecr.us-east-1.amazonaws.com/capstone-frontend:${params.ecr_tag}"
+      }
+    }
+
+stage('5. Get DB Password from AWS Secrets Manager') {
+  steps {
+    script {
+      def dbPass = sh(
+        script: "aws secretsmanager get-secret-value --secret-id app-db-password --region us-east-1 --query SecretString --output text",
+        returnStdout: true
+      ).trim()
+
+      env.DB_PASS = dbPass
+    }
+  }
+}
+
+stage('6. Create K8s Secret') {
+  steps {
+    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    // create k8s secret
+    sh """
+      kubectl create secret generic app-db-secret \
+        --from-literal=password=${env.DB_PASS} \
+        --dry-run=client -o yaml | kubectl apply -f -
+    """
+  }
+}
+
+stage('7. Application Deployment in EKS') {
+    steps {
+        kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+          sh "kubectl create namespace frontend"
+          sh "kubectl create namespace backend"
+          sh "kubectl apply -k app_k8s_manifest"
+        }
+      }
+    }
+
+    stage('8. Monitoring Solution Deployment in EKS') {
+  steps {
+    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+      // Create Grafana Secret first
+      sh """
+        kubectl create secret generic grafana-admin-creds \
+          --from-literal=admin-user=admin \
+          --from-literal=admin-password=admin123 \
+          -n monitoring \
+          --dry-run=client -o yaml | kubectl apply -f -
+      """
+
+      // Now install Helm and Monitoring
+      sh("""script/install_helm.sh""")
+      sh("""script/install_monitoring.sh""")
+    }
+  }
+}
+
+    stage('9. Email Notification') {
+      steps {
+        mail bcc: 'fusisoft@gmail.com', body: '''Build is Over. Check the application using the URL below:
+         https://address.dominionsystem.org
+         Let me know if the changes look okay.
+         Thanks,
+         Dominion System Technologies,
+         +1 (313) 413-1477''', 
+         subject: 'Application was Successfully Deployed!!', to: 'fusisoft@gmail.com'
+      }
+    }
+  }
+}

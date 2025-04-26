@@ -1,0 +1,6 @@
+admin:
+  existingSecret: grafana-admin-creds
+
+service:
+  type: LoadBalancer
+  

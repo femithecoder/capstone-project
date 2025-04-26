@@ -78,6 +78,8 @@ stage('5. Get DB Password from AWS Secrets Manager') {
 
 stage('6. Create K8s Secret') {
   steps {
+    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    // create k8s secret
     sh """
       kubectl create secret generic app-db-secret \
         --from-literal=password=${env.DB_PASS} \
@@ -97,14 +99,23 @@ stage('7. Application Deployment in EKS') {
     }
 
     stage('8. Monitoring Solution Deployment in EKS') {
-      steps {
-        kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
-          sh("""script/install_helm.sh""") 
-          sh("""script/install_monitoring.sh""")
-           
-        }
-      }
+  steps {
+    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+      // Create Grafana Secret first
+      sh """
+        kubectl create secret generic grafana-admin-creds \
+          --from-literal=admin-user=admin \
+          --from-literal=admin-password=admin123 \
+          -n monitoring \
+          --dry-run=client -o yaml | kubectl apply -f -
+      """
+
+      // Now install Helm and Monitoring
+      sh("""script/install_helm.sh""")
+      sh("""script/install_monitoring.sh""")
     }
+  }
+}
 
     stage('9. Email Notification') {
       steps {

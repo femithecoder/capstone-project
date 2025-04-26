@@ -1,5 +1,6 @@
-adminUser: admin
-adminPassword: admin123
+admin:
+  existingSecret: grafana-admin-creds
 
 service:
   type: LoadBalancer
+  

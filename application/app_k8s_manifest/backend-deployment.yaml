@@ -21,7 +21,7 @@ spec:
         - containerPort: 8000
         env:
             - name: DB_HOST
-              value: "<your-ec2-postgres-ip>"
+              value: "10.0.102.74"
             - name: DB_NAME
               value: "myappdb"
             - name: DB_USER

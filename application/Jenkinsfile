@@ -106,7 +106,7 @@ stage('7. Application Deployment in EKS') {
         withKubeConfig([credentialsId: 'kubeconfig'])  {
           //sh "kubectl create namespace frontend"
           //sh "kubectl create namespace backend"
-          sh "kubectl apply -k app_k8s_manifest"
+          sh "kubectl apply -k application/app_k8s_manifest"
         }
       }
     }

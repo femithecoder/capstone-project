@@ -16,7 +16,7 @@ pipeline {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
-            -Dsonar.projectKey=FastAPI-backend \
+            -Dsonar.projectKey=FastAPI-Backend \
             -Dsonar.projectName='FastAPI Backend' \
             -Dsonar.host.url=http://107.21.63.205:9000/ \
             -Dsonar.token=${SONAR_TOKEN} \

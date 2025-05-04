@@ -19,7 +19,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /reactapp-1.0
+      - path: /reactapp
         pathType: Prefix
         backend:
           service:

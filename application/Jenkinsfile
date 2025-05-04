@@ -5,6 +5,10 @@ pipeline {
       choice(name: 'Environment', choices: ['Dev', 'QA', 'UAT', 'Prod'], description: 'Target environment for deployment')
       string(name: 'ecr_tag', defaultValue: '1.0.0', description: 'Assign the ECR tag version for the build')
     }
+    environment {
+  scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+}
+
 
     stages {
     stage('1. SonarQube Analysis - Backend') {
@@ -23,17 +27,17 @@ pipeline {
         }
     }
 }
-    stage('2. SonarQube Analysis - Backend') {
+    stage('2. SonarQube Analysis - Frontend') {
     steps {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
-            -Dsonar.projectKey=fastapi-backend \
-            -Dsonar.projectName='FastAPI Backend' \
+            -Dsonar.projectKey=react-frontend \
+            -Dsonar.projectName='react frontend' \
             -Dsonar.host.url=https://sonarqube.dominionsystem.org \
             -Dsonar.token=${SONAR_TOKEN} \
             -Dsonar.sources=. \
-            -Dsonar.language=py \
+            -Dsonar.language=js \
             -Dsonar.sourceEncoding=UTF-8
             """
         }
@@ -86,6 +90,7 @@ stage('6. Create K8s Secret') {
         --dry-run=client -o yaml | kubectl apply -f -
     """
   }
+}
 }
 
 stage('7. Application Deployment in EKS') {

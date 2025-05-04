@@ -16,12 +16,12 @@ spec:
     spec:
       containers:
       - name: backend-container
-        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-backend:1.0.0
+        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-backend
         ports:
         - containerPort: 8000
         env:
             - name: DB_HOST
-              value: "10.0.102.74"
+              value: "10.0.102.200"
             - name: DB_NAME
               value: "myappdb"
             - name: DB_USER

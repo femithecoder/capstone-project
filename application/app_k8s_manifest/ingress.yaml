@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: reactapp-ingress
-  namespace: app
+  namespace: backend
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:548570664128:certificate/4729f56c-c421-477b-a9e3-cd4a3a9cfce6

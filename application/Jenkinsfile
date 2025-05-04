@@ -103,7 +103,6 @@ stage('6. Create K8s Secret') {
 
 stage('7. Application Deployment in EKS') {
     steps {
-      dir ('application/app_k8s_manifest') {
         withKubeConfig([credentialsId: 'kubeconfig'])  {
           //sh "kubectl create namespace frontend"
           //sh "kubectl create namespace backend"
@@ -111,7 +110,6 @@ stage('7. Application Deployment in EKS') {
         }
       }
     }
-}
 
     stage('8. Monitoring Solution Deployment in EKS') {
   steps {

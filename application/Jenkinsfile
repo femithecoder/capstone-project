@@ -13,6 +13,7 @@ pipeline {
     stages {
     stage('1. SonarQube Analysis - Backend') {
     steps {
+        dir ('backend') {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
@@ -23,12 +24,16 @@ pipeline {
             -Dsonar.sources=. \
             -Dsonar.language=py \
             -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.python.version=3.11 \
+            -Dsonar.terraform.provider.aws.version=5.41.0
             """
         }
     }
 }
+}
     stage('2. SonarQube Analysis - Frontend') {
     steps {
+      dir ('frontend') {
         withCredentials([string(credentialsId: 'sonarqube-token-1', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
@@ -43,6 +48,7 @@ pipeline {
         }
     }
 }
+    }
     stage('3. Approval: Proceed if Quality Passes') {
       steps {
         input message: 'Do you approve the quality gate results and want to continue?', ok: 'Yes, proceed'

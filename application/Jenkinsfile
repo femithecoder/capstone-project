@@ -13,7 +13,7 @@ pipeline {
     stages {
     stage('1. SonarQube Analysis - Backend') {
     steps {
-        dir ('backend') {
+        dir ('application/backend') {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
@@ -32,7 +32,7 @@ pipeline {
 }
     stage('2. SonarQube Analysis - Frontend') {
     steps {
-      dir ('frontend') {
+      dir ('application/frontend') {
         withCredentials([string(credentialsId: 'sonarqube-token-1', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \

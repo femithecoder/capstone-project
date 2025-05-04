@@ -95,6 +95,7 @@ stage('6. Create K8s Secret') {
     sh """
       kubectl create secret generic app-db-secret \
         --from-literal=password=${env.DB_PASS} \
+        -n backend
         --dry-run=client -o yaml | kubectl apply -f -
     """
   }

@@ -18,7 +18,7 @@ pipeline {
             ${scannerHome}/bin/sonar-scanner  \
             -Dsonar.projectKey=FastAPI-backend \
             -Dsonar.projectName='FastAPI Backend' \
-            -Dsonar.host.url=https://sonarqube.dominionsystem.org \
+            -Dsonar.host.url=http://107.21.63.205:9000/ \
             -Dsonar.token=${SONAR_TOKEN} \
             -Dsonar.sources=. \
             -Dsonar.language=py \
@@ -34,7 +34,7 @@ pipeline {
             ${scannerHome}/bin/sonar-scanner  \
             -Dsonar.projectKey=react-frontend \
             -Dsonar.projectName='react frontend' \
-            -Dsonar.host.url=https://sonarqube.dominionsystem.org \
+            -Dsonar.host.url=http://107.21.63.205:9000/ \
             -Dsonar.token=${SONAR_TOKEN} \
             -Dsonar.sources=. \
             -Dsonar.language=js \

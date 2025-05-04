@@ -9,12 +9,12 @@ helm repo update
 
 echo "🚀 Installing Prometheus..."
 helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-  --namespace monitoring --create-namespace \
-  -f monitoring/prometheus-values.yaml
+  --namespace backend --create-namespace \
+  -f prometheus-values.yaml
 
 echo "🚀 Installing Grafana..."
 helm upgrade --install grafana grafana/grafana \
-  --namespace monitoring \
-  -f monitoring/grafana-values.yaml
+  --namespace backend \
+  -f grafana-values.yaml
 
 echo "✅ Monitoring stack deployed!"

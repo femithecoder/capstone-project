@@ -7,7 +7,7 @@ data "terraform_remote_state" "vpc" {
   backend = "s3"
 
   config = {
-    bucket = "capstone-s3-bucket-femi"
+    bucket = "capstone-s3-bucket-01"
     key = "capstone/terraform.state"
     region = "us-east-1"
   }

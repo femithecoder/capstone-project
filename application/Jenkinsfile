@@ -7,6 +7,9 @@ pipeline {
     }
     environment {
   scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+  
+  PATH = "/home/ubuntu/bin:${env.PATH}"
+
 }
 
 

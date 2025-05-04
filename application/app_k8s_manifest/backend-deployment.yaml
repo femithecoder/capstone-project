@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend-container
-        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-backend
+        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-backend:1.0.0
         ports:
         - containerPort: 8000
         env:

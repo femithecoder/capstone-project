@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: frontend-container
-        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-frontend
+        image: 548570664128.dkr.ecr.us-east-1.amazonaws.com/capstone-frontend:1.0.0
         ports:
         - containerPort: 80

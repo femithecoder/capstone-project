@@ -87,7 +87,7 @@ stage('5. Get DB Password from AWS Secrets Manager') {
 
 stage('6. Create K8s Secret') {
   steps {
-    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    withKubeConfig([credentialsId: 'kubeconfig']) {
     // create k8s secret
     sh """
       kubectl create secret generic app-db-secret \
@@ -100,7 +100,7 @@ stage('6. Create K8s Secret') {
 
 stage('7. Application Deployment in EKS') {
     steps {
-        kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+        withKubeConfig([credentialsId: 'kubeconfig'])  {
           sh "kubectl create namespace frontend"
           sh "kubectl create namespace backend"
           sh "kubectl apply -k app_k8s_manifest"
@@ -110,7 +110,7 @@ stage('7. Application Deployment in EKS') {
 
     stage('8. Monitoring Solution Deployment in EKS') {
   steps {
-    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    withKubeConfig([credentialsId: 'kubeconfig']) {
       // Create Grafana Secret first
       sh """
         kubectl create secret generic grafana-admin-creds \

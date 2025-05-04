@@ -119,7 +119,7 @@ stage('7. Application Deployment in EKS') {
         kubectl create secret generic grafana-admin-creds \
           --from-literal=admin-user=admin \
           --from-literal=admin-password=admin123 \
-          -n monitoring \
+          -n backend \
           --dry-run=client -o yaml | kubectl apply -f -
       """
 

@@ -124,8 +124,8 @@ stage('7. Application Deployment in EKS') {
       """
 
       // Now install Helm and Monitoring
-      sh("""script/install_helm.sh""")
-      sh("""script/install_monitoring.sh""")
+      sh("""scripts/install_helm.sh""")
+      sh("""scripts/install_monitoring.sh""")
     }
   }
 }

@@ -5,14 +5,22 @@ pipeline {
       choice(name: 'Environment', choices: ['Dev', 'QA', 'UAT', 'Prod'], description: 'Target environment for deployment')
       string(name: 'ecr_tag', defaultValue: '1.0.0', description: 'Assign the ECR tag version for the build')
     }
+       environment {
+  scannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+  
+  PATH = "/home/ubuntu/bin:${env.PATH}"
+
+}
+
 
     stages {
     stage('1. SonarQube Analysis - Backend') {
     steps {
+           dir ('application/backend') {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
-            -Dsonar.projectKey=fastapi-backend \
+            -Dsonar.projectKey=FastAPI-Backend \
             -Dsonar.projectName='FastAPI Backend' \
             -Dsonar.host.url=https://sonarqube.jidebolarinwa.xyz \
             -Dsonar.token=${SONAR_TOKEN} \
@@ -20,11 +28,14 @@ pipeline {
             -Dsonar.language=py \
             -Dsonar.sourceEncoding=UTF-8
             """
+          }
         }
     }
 }
-    stage('2. SonarQube Analysis - Backend') {
+
+    stage('2. SonarQube Analysis - Frontend') {
     steps {
+      dir ('application/frontend') {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
             sh """
             ${scannerHome}/bin/sonar-scanner  \
@@ -36,6 +47,7 @@ pipeline {
             -Dsonar.language=py \
             -Dsonar.sourceEncoding=UTF-8
             """
+          }  
         }
     }
 }
@@ -78,21 +90,23 @@ stage('5. Get DB Password from AWS Secrets Manager') {
 
 stage('6. Create K8s Secret') {
   steps {
-    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    withKubeConfig([credentialsId: 'kubeconfig']) {
     // create k8s secret
     sh """
       kubectl create secret generic app-db-secret \
         --from-literal=password=${env.DB_PASS} \
+        -n backend \
         --dry-run=client -o yaml | kubectl apply -f -
     """
+    }
   }
 }
 
 stage('7. Application Deployment in EKS') {
     steps {
-        kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
-          sh "kubectl create namespace frontend"
-          sh "kubectl create namespace backend"
+        withKubeConfig([credentialsId: 'kubeconfig']) {
+          // sh "kubectl create namespace frontend"
+          // sh "kubectl create namespace backend"
           sh "kubectl apply -k app_k8s_manifest"
         }
       }
@@ -100,19 +114,24 @@ stage('7. Application Deployment in EKS') {
 
     stage('8. Monitoring Solution Deployment in EKS') {
   steps {
-    kubeconfig(caCertificate: '', credentialsId: 'kubeconfig', serverUrl: '') {
+    withKubeConfig([credentialsId: 'kubeconfig']) {
       // Create Grafana Secret first
       sh """
         kubectl create secret generic grafana-admin-creds \
           --from-literal=admin-user=admin \
           --from-literal=admin-password=admin123 \
-          -n monitoring \
+          -n backend \
           --dry-run=client -o yaml | kubectl apply -f -
       """
 
       // Now install Helm and Monitoring
-      sh("""script/install_helm.sh""")
-      sh("""script/install_monitoring.sh""")
+      sh """
+   chmod +x application/scripts/install_helm.sh
+   chmod +x application/scripts/install_monitoring.sh
+   application/scripts/install_helm.sh
+   application/scripts/install_monitoring.sh
+"""
+
     }
   }
 }

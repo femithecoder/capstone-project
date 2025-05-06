@@ -17,7 +17,7 @@ fi
 sudo apt install fontconfig openjdk-17-jre -y
 
 # SonarQube Variables
-SONARQUBE_VERSION=10.5.1.90531
+SONARQUBE_VERSION=25.4.0.105899
 SONAR_DB="ddsonarqube"
 SONAR_USER="ddsonar"
 APP_DB="myappdb"

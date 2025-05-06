@@ -4,6 +4,16 @@ module "eks" {
 
   cluster_name    = var.cluster_name
   cluster_version = "1.31"
+  cluster_security_group_additional_rules = {
+    allow_https_ingress = {
+      description              = "Allow inbound HTTPS traffic"
+      protocol                 = "tcp"
+      from_port                = 443
+      to_port                  = 443
+      type                     = "ingress"
+      cidr_blocks              = ["10.0.0.0/16"]
+    }
+  }
 
 enable_cluster_creator_admin_permissions = true
 # bootstrap_self_managed_addons = false

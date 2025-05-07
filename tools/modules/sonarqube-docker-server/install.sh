@@ -29,11 +29,28 @@ SONAR_DB_PASSWORD=$(openssl rand -base64 12)
 APP_DB_PASSWORD=$(openssl rand -base64 12)
 
 # Store passwords in AWS Secrets Manager
-aws secretsmanager create-secret --name sonar-db-password --secret-string "$SONAR_DB_PASSWORD" --region us-east-1  \
-aws secretsmanager update-secret --secret-id sonar-db-password --secret-string "$SONAR_DB_PASSWORD" --region us-east-1
+#!/bin/bash
 
-aws secretsmanager create-secret --name app-db-password --secret-string "$APP_DB_PASSWORD" --region us-east-1  \
-aws secretsmanager update-secret --secret-id app-db-password --secret-string "$APP_DB_PASSWORD" --region us-east-1
+# Create or update sonar-db-password secret
+aws secretsmanager create-secret \
+  --name sonar-db-password \
+  --secret-string "$SONAR_DB_PASSWORD" \
+  --region us-east-1 || \
+aws secretsmanager update-secret \
+  --secret-id sonar-db-password \
+  --secret-string "$SONAR_DB_PASSWORD" \
+  --region us-east-1
+
+# Create or update app-db-password secret
+aws secretsmanager create-secret \
+  --name app-db-password \
+  --secret-string "$APP_DB_PASSWORD" \
+  --region us-east-1 || \
+aws secretsmanager update-secret \
+  --secret-id app-db-password \
+  --secret-string "$APP_DB_PASSWORD" \
+  --region us-east-1
+
 
 # Store database credentials in system environment variables
 echo "Setting up environment variables..."
